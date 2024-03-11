@@ -17,7 +17,6 @@ setup(
         "five9",
         "inflection",
         "zeep",
-        "importlib",
         "pendulum"
     ],
     entry_points="""
