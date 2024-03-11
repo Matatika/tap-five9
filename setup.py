@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="tap-five9",
-    version="1.0.3",
+    version="1.0.4",
     description="Singer.io tap for extracting data",
     author="Stitch",
     url="http://singer.io",
@@ -11,11 +11,14 @@ setup(
     py_modules=["tap_five9"],
     install_requires=[
         # NB: Pin these to a more specific version for tap reliability
+        "singer_sdk",
         "singer-python",
         "requests",
         "five9",
         "inflection",
-        "zeep"
+        "zeep",
+        "importlib",
+        "pendulum"
     ],
     entry_points="""
     [console_scripts]

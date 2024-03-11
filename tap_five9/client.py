@@ -12,14 +12,15 @@ LOGGER = singer.get_logger()
 class Five9API:
     URL_TEMPLATE = 'https://{}.gorgias.com'
     MAX_RETRIES = 10
-    POLL_TIMEOUT = 600 # in seconds, maximum of 10 minutes of waiting for each report.
+    POLL_TIMEOUT = 300 # in seconds, maximum of 5 minutes of waiting for each report.
     POLL_DELAY = 5 # in seconds
 
     def __init__(self, config):
         self.client = Five9(config['username'], config['password'])
         self.config = config
 
-    def inflect_field(self, field):
+    @staticmethod
+    def inflect_field(field):
 
         field = re.sub(r'[^a-zA-Z0-9]', '_', field)
         field = re.sub(r"([A-Z]+)_([A-Z][a-z])", r'\1__\2', field)

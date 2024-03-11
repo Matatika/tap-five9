@@ -28,6 +28,9 @@
     },
     "agent_start_year": {
       "type": ["null", "integer"]
+    },
+    "enabled_for_video" : {
+      "type" : ["null", "boolean"]
     }
   }
 }

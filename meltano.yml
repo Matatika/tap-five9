@@ -1,0 +1,20 @@
+version: 1
+send_anonymous_usage_stats: false
+plugins:
+  extractors:
+    - name: tap-five9
+      namespace: tap_five9
+      pip_url: -e .
+      capabilities:
+        - catalog
+        - discover
+        - properties
+        - state
+      settings:
+        - name: username
+          kind: string
+        - name: password
+          kind: password
+          sensitive: true
+        - name: start_date
+          kind: date_iso8601

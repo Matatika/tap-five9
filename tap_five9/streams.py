@@ -1,16 +1,21 @@
 import datetime
+import typing as t
+from importlib import resources as importlib_resources
 
-import pytz
-
-import singer
 import dateutil.parser as parser
-
+import pendulum
+import pytz
+import singer
 from singer.utils import strftime as singer_strftime
+from singer_sdk import Stream, Tap
+
+from tap_five9.client import Five9API
 
 LOGGER = singer.get_logger()
+SCHEMAS_DIR = importlib_resources.files(__package__) / "schemas"
 
 
-class ReportStream():
+class Five9ApiStream(Stream):
     name = None
     stream = None
     replication_method = None
@@ -19,21 +24,16 @@ class ReportStream():
     folder_name = None
     report_name = None
     results_key = 'records'
+    datetime_fields = []
 
-    def __init__(self, client=None, start_date=None):
-        self.client = client
-        if start_date:
-            self.start_date = start_date
-        else:
-            self.start_date = datetime.datetime.min.strftime('%Y-%m-%dT%H:%M:%S')
+    def __init__(self, tap: Tap, schema=None,
+                 name: str | None = None) -> None:
+        super().__init__(tap, schema, name)
 
-    def is_selected(self):
-        return self.stream is not None
-
-    def update_bookmark(self, state, value):
-        current_bookmark = singer.get_bookmark(state, self.name, self.replication_key)
-        if value and value > current_bookmark:
-            singer.write_bookmark(state, self.name, self.replication_key, value)
+        self.client = Five9API({
+            "username": self.config.get("username"),
+            "password": self.config.get("password"),
+        })
 
     def transform_value(self, key, value):
         if key in self.datetime_fields and value:
@@ -44,96 +44,79 @@ class ReportStream():
 
         return value
 
-    def sync(self, state):
-        try:
-            sync_thru = singer.get_bookmark(state, self.name, self.replication_key)
-        except TypeError:
-            sync_thru = self.start_date
-        
-        if not self.replication_key:
-            sync_thru = self.start_date
+    def get_starting_timestamp(self, context: dict | None) -> datetime.datetime | None:
+        state = self.get_context_state(context)
+        value = self.config['start_date']
+        if state:
+            if state['starting_replication_value'] is not None:
+                value = state['starting_replication_value']
 
-        curr_synced_thru = sync_thru
+        if value is None:
+            return None
+
+        return pendulum.parse(value)
+
+    def get_records(
+            self,
+            context: dict | None,
+    ) -> t.Iterable[dict | tuple[dict, dict | None]]:
+
+        start_date = self.get_starting_timestamp(context)
 
         params = {
-                'folder_name': self.folder_name,
-                'report_name': self.report_name,
-                'start': sync_thru,
-                'end': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
-            }
+            'folder_name': self.folder_name,
+            'report_name': self.report_name,
+            'start': start_date.strftime('%Y-%m-%dT%H:%M:%S'),
+            'end': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
+        }
 
         data = self.client.return_report_results(params)
         for row in data:
             record = {k: self.transform_value(k, v) for (k, v) in row.items()}
-            yield(self.stream, record)
-
-            bookmark_date = record.get(self.replication_key)
-            if bookmark_date:
-                curr_synced_thru = max(curr_synced_thru, bookmark_date)
-
-        if self.replication_key:
-            self.update_bookmark(state, curr_synced_thru)
+            yield record
 
 
-class CallLog(ReportStream):
+class CallLog(Five9ApiStream):
     name = 'call_log'
     stream = 'call_log'
     replication_method = 'INCREMENTAL'
     replication_key = 'timestamp'
-    key_properties = 'call_id'
+    primary_keys = ('call_id',)
     folder_name = 'Call Log Reports'
     report_name = 'Call Log'
-    datetime_fields = set(['timestamp'])
+    datetime_fields = {'timestamp'}
+    schema_filepath = SCHEMAS_DIR / "call_log.json"
 
 
-class AgentLoginLogout(ReportStream):
+class AgentLoginLogout(Five9ApiStream):
     name = 'agent_login_logout'
     stream = 'agent_login_logout'
     replication_method = 'INCREMENTAL'
     replication_key = 'date'
-    key_properties = ['agent', 'date']
+    primary_keys = ('agent', 'date',)
     folder_name = 'Agent Reports'
     report_name = 'Agent Login-Logout'
-    datetime_fields = set(['date', 'login_timestamp', 'logout_timestamp'])
+    datetime_fields = {'date', 'login_timestamp', 'logout_timestamp'}
+    schema_filepath = SCHEMAS_DIR / "agent_login_logout.json"
 
 
-class AgentOccupancy(ReportStream):
+class AgentOccupancy(Five9ApiStream):
     name = 'agent_occupancy'
     stream = 'agent_occupancy'
     replication_method = 'INCREMENTAL'
     replication_key = 'date'
-    key_properties = ['agent', 'date']
+    primary_keys = ('agent', 'date',)
     folder_name = 'Agent Reports'
     report_name = 'Agent Occupancy'
-    datetime_fields = set(['date'])
+    datetime_fields = {'date'}
+    schema_filepath = SCHEMAS_DIR / "agent_occupancy.json"
 
 
-class AgentInformation(ReportStream):
+class AgentInformation(Five9ApiStream):
     name = 'agent_information'
     stream = 'agent_information'
     replication_method = 'FULL_TABLE'
-    key_properties = ['agent_id', 'agent']
+    primary_keys = ('agent_id',)
     folder_name = 'Agent Reports'
     report_name = 'Agents Information'
-    datetime_fields = set()
-
-
-class CustomReport(ReportStream):
-    def __init__(self, name, replication_method, replication_key, key_properties, folder_name, report_name, datetime_fields, stream, client, start_date):
-        self.name = name
-        self.replication_method = replication_method
-        self.replication_key = replication_key
-        self.key_properties = key_properties
-        self.folder_name = folder_name
-        self.report_name = report_name
-        self.datetime_fields = set(datetime_fields)
-        self.stream = stream
-        super().__init__(client, start_date)
-
-
-STREAMS = {
-    'call_log': CallLog,
-    'agent_login_logout': AgentLoginLogout,
-    'agent_occupancy': AgentOccupancy,
-    'agent_information': AgentInformation,
-}
+    schema_filepath = SCHEMAS_DIR / "agent_information.json"
