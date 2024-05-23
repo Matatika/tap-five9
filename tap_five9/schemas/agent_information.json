@@ -1,36 +1,70 @@
 {
-  "type": ["null", "object"],
+  "type": [
+    "null",
+    "object"
+  ],
   "additionalProperties": false,
   "properties": {
     "agent_id": {
-      "type": ["null", "integer"]
+      "type": [
+        "null",
+        "string"
+      ],
+      "pattern": "^[0-9]+$"
     },
     "agent": {
-      "type": ["null", "string"]
+      "type": [
+        "null",
+        "string"
+      ]
     },
     "agent_first_name": {
-      "type": ["null", "string"]
+      "type": [
+        "null",
+        "string"
+      ]
     },
     "agent_last_name": {
-      "type": ["null", "string"]
+      "type": [
+        "null",
+        "string"
+      ]
     },
     "agent_name": {
-      "type": ["null", "string"]
+      "type": [
+        "null",
+        "string"
+      ]
     },
     "extension": {
-      "type": ["null", "string"]
+      "type": [
+        "null",
+        "string"
+      ]
     },
     "agent_email": {
-      "type": ["null", "string"]
+      "type": [
+        "null",
+        "string"
+      ]
     },
     "agent_start_month": {
-      "type": ["null", "string"]
+      "type": [
+        "null",
+        "string"
+      ]
     },
     "agent_start_year": {
-      "type": ["null", "integer"]
+      "type": [
+        "null",
+        "integer"
+      ]
     },
-    "enabled_for_video" : {
-      "type" : ["null", "boolean"]
+    "enabled_for_video": {
+      "type": [
+        "null",
+        "boolean"
+      ]
     }
   }
 }
