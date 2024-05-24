@@ -1,169 +1,169 @@
 {
-    "type": [
+  "type": [
+    "null",
+    "object"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "call_id": {
+      "type": [
         "null",
-        "object"
-    ],
-    "additionalProperties": false,
-    "properties": {
-        "call_id": {
-            "type": [
-                "null",
-                "string"
-            ]
-        },
-        "timestamp": {
-            "type": [
-                "null",
-                "string"
-            ],
-            "format": "date-time"
-        },
-        "campaign": {
-            "type": [
-                "null",
-                "string"
-            ]
-        },
-        "call_type": {
-            "type": [
-                "null",
-                "string"
-            ]
-        },
-        "agent": {
-            "type": [
-                "null",
-                "string"
-            ]
-        },
-        "agent_name": {
-            "type": [
-                "null",
-                "string"
-            ]
-        },
-        "disposition": {
-            "type": [
-                "null",
-                "string"
-            ]
-        },
-        "ani": {
-            "type": [
-                "null",
-                "string"
-            ]
-        },
-        "customer_name": {
-            "type": [
-                "null",
-                "string"
-            ]
-        },
-        "dnis": {
-            "type": [
-                "null",
-                "string"
-            ]
-        },
-        "call_time": {
-            "type": [
-                "null",
-                "string"
-            ],
-            "format": "timestamp"
-        },
-        "bill_time__rounded_": {
-            "type": [
-                "null",
-                "string"
-            ],
-            "format": "timestamp"
-        },
-        "cost": {
-            "type": [
-                "null",
-                "string"
-            ]
-        },
-        "ivr_time": {
-            "type": [
-                "null",
-                "string"
-            ],
-            "format": "timestamp"
-        },
-        "queue_wait_time": {
-            "type": [
-                "null",
-                "string"
-            ],
-            "format": "timestamp"
-        },
-        "ring_time": {
-            "type": [
-                "null",
-                "string"
-            ],
-            "format": "timestamp"
-        },
-        "talk_time": {
-            "type": [
-                "null",
-                "string"
-            ],
-            "format": "timestamp"
-        },
-        "hold_time": {
-            "type": [
-                "null",
-                "string"
-            ],
-            "format": "timestamp"
-        },
-        "park_time": {
-            "type": [
-                "null",
-                "string"
-            ],
-            "format": "timestamp"
-        },
-        "after_call_work_time": {
-            "type": [
-                "null",
-                "string"
-            ],
-            "format": "timestamp"
-        },
-        "transfers": {
-            "type": [
-                "null",
-                "integer"
-            ]
-        },
-        "conferences": {
-            "type": [
-                "null",
-                "integer"
-            ]
-        },
-        "holds": {
-            "type": [
-                "null",
-                "integer"
-            ]
-        },
-        "abandoned": {
-            "type": [
-                "null",
-                "integer"
-            ]
-        },
-        "recordings": {
-            "type": [
-                "null",
-                "string"
-            ]
-        }
+        "string"
+      ]
+    },
+    "timestamp": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "campaign": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "call_type": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "agent": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "agent_name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "disposition": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "ani": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "customer_name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "dnis": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "call_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "timestamp"
+    },
+    "bill_time__rounded_": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "timestamp"
+    },
+    "cost": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "ivr_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "timestamp"
+    },
+    "queue_wait_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "timestamp"
+    },
+    "ring_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "timestamp"
+    },
+    "talk_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "timestamp"
+    },
+    "hold_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "timestamp"
+    },
+    "park_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "timestamp"
+    },
+    "after_call_work_time": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "timestamp"
+    },
+    "transfers": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "conferences": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "holds": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "abandoned": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "recordings": {
+      "type": [
+        "null",
+        "string"
+      ]
     }
+  }
 }

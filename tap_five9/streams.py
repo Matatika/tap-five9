@@ -25,6 +25,7 @@ class Five9ApiStream(Stream):
     report_name = None
     results_key = 'records'
     datetime_fields = []
+    int_fields = []
 
     def __init__(self, tap: Tap, schema=None,
                  name: str | None = None) -> None:
@@ -41,6 +42,9 @@ class Five9ApiStream(Stream):
             value = value.replace(tzinfo=pytz.utc)
             # reformat to use RFC3339 format
             value = singer_strftime(value)
+
+        if key in self.int_fields and value:
+            value = int(value)
 
         return value
 
@@ -116,6 +120,7 @@ class AgentInformation(Five9ApiStream):
     name = 'agent_information'
     stream = 'agent_information'
     replication_method = 'FULL_TABLE'
+    int_fields = {'agent_id', 'agent_start_year'}
     primary_keys = ('agent_id',)
     folder_name = 'Agent Reports'
     report_name = 'Agents Information'

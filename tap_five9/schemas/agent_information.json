@@ -8,9 +8,8 @@
     "agent_id": {
       "type": [
         "null",
-        "string"
-      ],
-      "pattern": "^[0-9]+$"
+        "integer"
+      ]
     },
     "agent": {
       "type": [
