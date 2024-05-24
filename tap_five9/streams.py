@@ -89,6 +89,7 @@ class CallLog(Five9ApiStream):
     folder_name = 'Call Log Reports'
     report_name = 'Call Log'
     datetime_fields = {'timestamp'}
+    int_fields = {'transfers', 'conferences', 'holds', 'abandoned'}
     schema_filepath = SCHEMAS_DIR / "call_log.json"
 
 
