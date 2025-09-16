@@ -8,6 +8,13 @@ from five9 import Five9
 
 LOGGER = singer.get_logger()
 
+HOSTS = {
+    "US": "api.five9.com",
+    "UK": "api.five9.eu",
+    "CA": "api.five9.ca",
+    "DE": "api.eu.five9.com",
+}
+
 
 class Five9API:
     URL_TEMPLATE = 'https://{}.gorgias.com'
@@ -15,9 +22,18 @@ class Five9API:
     POLL_TIMEOUT = 300 # in seconds, maximum of 5 minutes of waiting for each report.
     POLL_DELAY = 5 # in seconds
 
-    def __init__(self, config):
+    def __init__(self, config: dict):
         self.client = Five9(config['username'], config['password'])
         self.config = config
+
+        host = HOSTS[config.get("region", "US")]
+
+        self.client.WSDL_CONFIGURATION = (
+            f"https://{host}/wsadmin/v13/AdminWebService?wsdl&user=%s"
+        )
+        self.client.WSDL_SUPERVISOR = (
+            f"https://{host}/wssupervisor/v13/SupervisorWebService?wsdl&user=%s"
+        )
 
     @staticmethod
     def inflect_field(field):
