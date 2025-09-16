@@ -18,3 +18,15 @@ plugins:
           sensitive: true
         - name: start_date
           kind: date_iso8601
+        - name: region
+          kind: options
+          options:
+            - label: US
+              value: US
+            - label: UK
+              value: UK
+            - label: CA
+              value: CA
+            - label: EU
+              value: EU
+          value: US

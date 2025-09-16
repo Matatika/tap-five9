@@ -3,6 +3,7 @@ import typing as t
 from singer_sdk import Tap
 from singer_sdk.typing import PropertiesList, Property, StringType, DateTimeType
 
+from tap_five9 import client
 from tap_five9.streams import CallLog, AgentLoginLogout, AgentOccupancy, AgentInformation, Five9ApiStream
 
 STREAMS = [
@@ -18,7 +19,8 @@ class TapFive9(Tap):
     config_jsonschema = PropertiesList(
         Property("username", StringType(), required=True, description="Username for Five9", secret=True),
         Property("password", StringType(), required=True, description="Password for Five9", secret=True),
-        Property("start_date", DateTimeType(), required=True, description="Starting date to sync data from Five9")
+        Property("start_date", DateTimeType(), required=True, description="Starting date to sync data from Five9"),
+        Property("region", StringType(), allowed_values=list(client.HOSTS), default="US", description="Five9 region"),
     ).to_dict()
 
     def discover_streams(self) -> t.Sequence[Five9ApiStream]:

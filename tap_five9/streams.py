@@ -33,10 +33,7 @@ class Five9ApiStream(Stream):
                  name: str | None = None) -> None:
         super().__init__(tap, schema, name)
 
-        self.client = Five9API({
-            "username": self.config.get("username"),
-            "password": self.config.get("password"),
-        })
+        self.client = Five9API(self.config)
 
     def transform_value(self, key, value):
         if key in self.datetime_fields and value:

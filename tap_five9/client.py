@@ -26,7 +26,7 @@ class Five9API:
         self.client = Five9(config['username'], config['password'])
         self.config = config
 
-        host = HOSTS[config.get("region", "US")]
+        host = HOSTS[config["region"]]
 
         self.client.WSDL_CONFIGURATION = (
             f"https://{host}/wsadmin/v13/AdminWebService?wsdl&user=%s"
