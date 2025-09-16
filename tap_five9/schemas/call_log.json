@@ -73,7 +73,7 @@
       ],
       "format": "timestamp"
     },
-    "bill_time__rounded_": {
+    "bill_time__rounded": {
       "type": [
         "null",
         "string"

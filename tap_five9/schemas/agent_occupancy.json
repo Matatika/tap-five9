@@ -79,21 +79,21 @@
       ],
       "format": "timestamp"
     },
-    "available_time__login_less_not_ready_": {
+    "available_time__login_less_not_ready": {
       "type": [
         "null",
         "string"
       ],
       "format": "timestamp"
     },
-    "occupancy__login_less_wait_": {
+    "occupancy__login_less_wait": {
       "type": [
         "null",
         "string"
       ],
       "format": "timestamp"
     },
-    "utilization__login_less_wait_and_not_ready_": {
+    "utilization__login_less_wait_and_not_ready": {
       "type": [
         "null",
         "string"
