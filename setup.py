@@ -12,7 +12,7 @@ setup(
     install_requires=[
         # NB: Pin these to a more specific version for tap reliability
         "singer_sdk",
-        "singer-python",
+        "singer-python==1.8.1",
         "requests",
         "five9",
         "inflection",
