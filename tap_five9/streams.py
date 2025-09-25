@@ -118,9 +118,9 @@ class CallLog(Five9ApiStream):
     def _increment_stream_state(self, latest_record, *, context=None):
         timestamp = datetime.datetime.fromisoformat(latest_record[self.replication_key])
 
-        # truncate timestamp up the minute for sorted records check as CSV report data
-        # appears to be ordered, apart from seconds in a few cases
-        timestamp_truncated = timestamp.replace(second=0, microsecond=0)
+        # truncate timestamp up to the hour for sorted records check, since finer units
+        # sometimes appear out-of-order in the CSV report date
+        timestamp_truncated = timestamp.replace(minute=0, second=0, microsecond=0)
 
         return super()._increment_stream_state(
             {
