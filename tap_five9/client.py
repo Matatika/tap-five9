@@ -1,10 +1,12 @@
+import csv
 import datetime
+import five9
 import inflection
+import io
 import singer
 import time
 import re
 import zeep
-from five9 import Five9
 
 LOGGER = singer.get_logger()
 
@@ -14,6 +16,13 @@ HOSTS = {
     "CA": "api.five9.ca",
     "DE": "api.eu.five9.com",
 }
+
+
+class Five9(five9.Five9):
+    def _get_authenticated_client(self, wsdl):
+        client = super()._get_authenticated_client(wsdl)
+        client.settings.xml_huge_tree = True
+        return client
 
 
 class Five9API:
@@ -48,7 +57,7 @@ class Five9API:
         folder_name = params['folder_name']
         report_name = params['report_name']
         start = params['start']
-        end = params['end']
+        end = params['end'] or datetime.datetime.now(tz=datetime.timezone.utc)
         criteria = {
             'time': {
                 'start': start,
@@ -93,14 +102,19 @@ class Five9API:
 
         LOGGER.info(f'five9 getting report results')
         try:
-            response = self.client.configuration.getReportResult(identifier)
+            response = self.client.configuration.getReportResultCsv(identifier)
         except zeep.exceptions.Fault as e:
             LOGGER.info(f'Failed to get report results after report stopped running. Report identifier: {identifier}')
             raise e
 
         if response:
-            fields = [self.inflect_field(field) for field in response.header['values']['data']]
-            return self.client.parse_response(fields, response.records)
+            reader = csv.DictReader(io.StringIO(response))
+            reader.fieldnames = [
+                self.inflect_field(field) for field in reader.fieldnames
+            ]
+
+            yield from reader
+            return
 
         LOGGER.exception(f'error getting five9 report for {identifier}')
 

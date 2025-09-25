@@ -28,6 +28,7 @@ class Five9ApiStream(Stream):
     results_key = 'records'
     datetime_fields = []
     int_fields = []
+    is_sorted = True
 
     def __init__(self, tap: Tap, schema=None,
                  name: str | None = None) -> None:
@@ -64,19 +65,42 @@ class Five9ApiStream(Stream):
             context: dict | None,
     ) -> t.Iterable[dict | tuple[dict, dict | None]]:
 
-        start_date = self.get_starting_timestamp(context)
-
         params = {
-            'folder_name': self.folder_name,
-            'report_name': self.report_name,
-            'start': start_date.strftime('%Y-%m-%dT%H:%M:%S'),
-            'end': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
+            "folder_name": self.folder_name,
+            "report_name": self.report_name,
         }
 
-        data = self.client.return_report_results(params)
-        for row in data:
-            record = {k: self.transform_value(k, v) for (k, v) in row.items()}
-            yield record
+        while True:
+            start_date = self.get_starting_timestamp(context)
+
+            # period of one week chosen as a happy medium between too many report
+            # requests for shorter periods and slow-running reports for longer periods
+            end_date = start_date + datetime.timedelta(days=7)
+
+            if end_date > datetime.datetime.now(tz=datetime.timezone.utc):
+                end_date = None
+
+            data = self.client.return_report_results(
+                {
+                    **params,
+                    "start": start_date.isoformat(),
+                    "end": end_date and end_date.isoformat(),
+                }
+            )
+
+            i = 0
+            for i, row in enumerate(data, start=1):
+                record = {k: self.transform_value(k, v) for (k, v) in row.items()}
+                yield record
+
+            self._write_starting_replication_value(context)
+
+            if i >= 50000:
+                LOGGER.debug("CSV report limit of 50,000 reached")
+                continue
+
+            if end_date is None:
+                break
 
 
 class CallLog(Five9ApiStream):
@@ -90,6 +114,21 @@ class CallLog(Five9ApiStream):
     datetime_fields = {'timestamp'}
     int_fields = {'transfers', 'conferences', 'holds', 'abandoned'}
     schema_filepath = SCHEMAS_DIR / "call_log.json"
+
+    def _increment_stream_state(self, latest_record, *, context=None):
+        timestamp = datetime.datetime.fromisoformat(latest_record[self.replication_key])
+
+        # truncate timestamp up the minute for sorted records check as CSV report data
+        # appears to be ordered, apart from seconds in a few cases
+        timestamp_truncated = timestamp.replace(second=0, microsecond=0)
+
+        return super()._increment_stream_state(
+            {
+                **latest_record,
+                self.replication_key: timestamp_truncated.isoformat(),
+            },
+            context=context,
+        )
 
 
 class AgentLoginLogout(Five9ApiStream):
