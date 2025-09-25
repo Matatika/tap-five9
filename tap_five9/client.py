@@ -113,7 +113,9 @@ class Five9API:
                 self.inflect_field(field) for field in reader.fieldnames
             ]
 
-            yield from reader
+            for row in reader:
+                yield {k: v or None for k, v in row.items()}
+
             return
 
         LOGGER.exception(f'error getting five9 report for {identifier}')
