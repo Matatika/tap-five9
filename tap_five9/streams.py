@@ -81,8 +81,8 @@ class Five9ApiStream(Stream):
             data = self.client.return_report_results(
                 {
                     **params,
-                    "start": start_date.isoformat(),
-                    "end": end_date and end_date.isoformat(),
+                    "start": start_date,
+                    "end": end_date,
                 }
             )
 

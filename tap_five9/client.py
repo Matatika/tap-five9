@@ -56,12 +56,12 @@ class Five9API:
     def run_report(self, params):
         folder_name = params['folder_name']
         report_name = params['report_name']
-        start = params['start']
-        end = params['end'] or datetime.datetime.now(tz=datetime.timezone.utc)
+        start: datetime.datetime = params['start']
+        end: datetime.datetime = params['end'] or datetime.datetime.now(tz=datetime.timezone.utc)
         criteria = {
             'time': {
-                'start': start,
-                'end': end
+                'start': start.isoformat(),
+                'end': end.isoformat()
             }
         }
 
