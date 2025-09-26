@@ -28,7 +28,6 @@ class Five9ApiStream(Stream):
     results_key = 'records'
     datetime_fields = []
     int_fields = []
-    is_sorted = True
 
     def __init__(self, tap: Tap, schema=None,
                  name: str | None = None) -> None:
@@ -70,12 +69,11 @@ class Five9ApiStream(Stream):
             "report_name": self.report_name,
         }
 
-        while True:
-            start_date = self.get_starting_timestamp(context)
+        start_date = self.get_starting_timestamp(context)
 
-            # period of one week chosen as a happy medium between too many report
-            # requests for shorter periods and slow-running reports for longer periods
-            end_date = start_date + datetime.timedelta(days=7)
+        while True:
+            # period of one day seems to be generally within CSV report result limit
+            end_date = start_date + datetime.timedelta(days=1)
 
             if end_date > datetime.datetime.now(tz=datetime.timezone.utc):
                 end_date = None
@@ -93,14 +91,15 @@ class Five9ApiStream(Stream):
                 record = {k: self.transform_value(k, v) for (k, v) in row.items()}
                 yield record
 
-            self._write_starting_replication_value(context)
-
             if i >= 50000:
-                LOGGER.debug("CSV report limit of 50,000 reached")
-                continue
+                LOGGER.warning("CSV report result limit of 50,000 reached - data may be missing")
+
+            self._finalize_state(self.stream_state)
 
             if end_date is None:
                 break
+
+            start_date = end_date
 
 
 class CallLog(Five9ApiStream):
@@ -114,21 +113,6 @@ class CallLog(Five9ApiStream):
     datetime_fields = {'timestamp'}
     int_fields = {'transfers', 'conferences', 'holds', 'abandoned'}
     schema_filepath = SCHEMAS_DIR / "call_log.json"
-
-    def _increment_stream_state(self, latest_record, *, context=None):
-        timestamp = datetime.datetime.fromisoformat(latest_record[self.replication_key])
-
-        # truncate timestamp up to the hour for sorted records check, since finer units
-        # sometimes appear out-of-order in the CSV report date
-        timestamp_truncated = timestamp.replace(minute=0, second=0, microsecond=0)
-
-        return super()._increment_stream_state(
-            {
-                **latest_record,
-                self.replication_key: timestamp_truncated.isoformat(),
-            },
-            context=context,
-        )
 
 
 class AgentLoginLogout(Five9ApiStream):
