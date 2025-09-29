@@ -10,7 +10,7 @@ import singer
 from singer.utils import strftime as singer_strftime
 from singer_sdk import Stream, Tap
 
-from tap_five9.client import Five9API, TIMEZONES
+from tap_five9 import client
 
 LOGGER = singer.get_logger()
 SCHEMAS_DIR = importlib_resources.files(__package__) / "schemas"
@@ -32,8 +32,8 @@ class Five9ApiStream(Stream):
                  name: str | None = None) -> None:
         super().__init__(tap, schema, name)
 
-        self.client = Five9API(self.config)
-        self.timezone = TIMEZONES[self.config["region"]]
+        self.client = client.Five9API(self.config)
+        self.timezone = client.REGIONS[self.config["region"]].timezone
 
     def transform_value(self, key, value):
         if key in self.datetime_fields and value:

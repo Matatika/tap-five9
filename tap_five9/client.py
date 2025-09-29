@@ -7,22 +7,18 @@ import singer
 import time
 import re
 import zeep
+from collections import namedtuple
 from zoneinfo import ZoneInfo
+
+RegionInfo = namedtuple("RegionInfo", ["host", "timezone"])
 
 LOGGER = singer.get_logger()
 
-HOSTS = {
-    "US": "api.five9.com",
-    "UK": "api.five9.eu",
-    "CA": "api.five9.ca",
-    "DE": "api.eu.five9.com",
-}
-
-TIMEZONES = {
-    "US": ZoneInfo("America/Los_Angeles"),
-    "UK": ZoneInfo("Europe/London"),
-    "CA": ZoneInfo("America/Vancouver"),
-    "DE": ZoneInfo("Europe/Berlin"),
+REGIONS = {
+    "US": RegionInfo(host="api.five9.com", timezone=ZoneInfo("America/Los_Angeles")),
+    "UK": RegionInfo(host="api.five9.eu", timezone=ZoneInfo("Europe/London")),
+    "CA": RegionInfo(host="api.five9.ca", timezone=ZoneInfo("America/Vancouver")),
+    "DE": RegionInfo(host="api.eu.five9.com", timezone=ZoneInfo("Europe/Berlin")),
 }
 
 
@@ -43,7 +39,7 @@ class Five9API:
         self.client = Five9(config['username'], config['password'])
         self.config = config
 
-        host = HOSTS[config["region"]]
+        host = REGIONS[config["region"]].host
 
         self.client.WSDL_CONFIGURATION = (
             f"https://{host}/wsadmin/v13/AdminWebService?wsdl&user=%s"
@@ -108,7 +104,7 @@ class Five9API:
             elapsed_time = (datetime.datetime.utcnow() - start_time).total_seconds()
             LOGGER.info(f'five9 report is running ({elapsed_time} seconds), waiting {poll_delay} sec until next check.')
 
-        LOGGER.info(f'five9 getting report results')
+        LOGGER.info('five9 getting report results')
         try:
             response = self.client.configuration.getReportResultCsv(identifier)
         except zeep.exceptions.Fault as e:

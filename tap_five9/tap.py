@@ -20,7 +20,7 @@ class TapFive9(Tap):
         Property("username", StringType(), required=True, description="Username for Five9", secret=True),
         Property("password", StringType(), required=True, description="Password for Five9", secret=True),
         Property("start_date", DateTimeType(), required=True, description="Starting date to sync data from Five9"),
-        Property("region", StringType(), allowed_values=list(client.HOSTS), default="US", description="Five9 region"),
+        Property("region", StringType(), allowed_values=list(client.REGIONS), default="US", description="Five9 region"),
     ).to_dict()
 
     def discover_streams(self) -> t.Sequence[Five9ApiStream]:
