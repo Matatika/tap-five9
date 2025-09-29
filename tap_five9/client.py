@@ -7,6 +7,7 @@ import singer
 import time
 import re
 import zeep
+from zoneinfo import ZoneInfo
 
 LOGGER = singer.get_logger()
 
@@ -15,6 +16,13 @@ HOSTS = {
     "UK": "api.five9.eu",
     "CA": "api.five9.ca",
     "DE": "api.eu.five9.com",
+}
+
+TIMEZONES = {
+    "US": ZoneInfo("America/Los_Angeles"),
+    "UK": ZoneInfo("Europe/London"),
+    "CA": ZoneInfo("America/Vancouver"),
+    "DE": ZoneInfo("Europe/Berlin"),
 }
 
 

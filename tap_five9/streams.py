@@ -6,12 +6,11 @@ from importlib import resources as importlib_resources
 
 import dateutil.parser as parser
 import pendulum
-import pytz
 import singer
 from singer.utils import strftime as singer_strftime
 from singer_sdk import Stream, Tap
 
-from tap_five9.client import Five9API
+from tap_five9.client import Five9API, TIMEZONES
 
 LOGGER = singer.get_logger()
 SCHEMAS_DIR = importlib_resources.files(__package__) / "schemas"
@@ -34,11 +33,15 @@ class Five9ApiStream(Stream):
         super().__init__(tap, schema, name)
 
         self.client = Five9API(self.config)
+        self.timezone = TIMEZONES[self.config["region"]]
 
     def transform_value(self, key, value):
         if key in self.datetime_fields and value:
             value = parser.parse(value)
-            value = value.replace(tzinfo=pytz.utc)
+            # convert timezone-naive to timezone-aware, based on region
+            value = value.astimezone(self.timezone)
+            # convert to utc
+            value = value.astimezone(datetime.timezone.utc)
             # reformat to use RFC3339 format
             value = singer_strftime(value)
 
