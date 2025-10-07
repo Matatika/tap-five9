@@ -9,34 +9,96 @@ from singer_sdk.typing import (
     Property,
     StringType,
 )
+
 from tap_five9 import client
-from tap_five9.streams import CallLog, AgentLoginLogout, AgentOccupancy, AgentInformation, Five9ApiStream
+from tap_five9.streams import (
+    AgentInformation,
+    AgentLoginLogout,
+    AgentOccupancy,
+    CallLog,
+    Five9ApiStream,
+)
 
 STREAMS = [
     CallLog,
     AgentLoginLogout,
     AgentOccupancy,
-    AgentInformation
+    AgentInformation,
 ]
 
 
 class TapFive9(Tap):
-    name: str = 'tap-five9'
+    name: str = "tap-five9"
     config_jsonschema = PropertiesList(
-        Property("username", StringType(), required=True, description="Username for Five9", secret=True),
-        Property("password", StringType(), required=True, description="Password for Five9", secret=True),
-        Property("start_date", DateTimeType(), required=True, description="Starting date to sync data from Five9"),
-        Property("region", StringType(), allowed_values=list(client.REGIONS), default="US", description="Five9 region"),
-        Property("custom_reports", ArrayType(
-            ObjectType(
-                Property("name", StringType(), required=True, description="Stream name"),
-                Property("schema", ObjectType(additional_properties=True), default={"properties": {}}, description="Stream schema"),
-                Property("primary_keys", ArrayType(StringType()), default=[], description="Stream primary keys"),
-                Property("replication_key", StringType(), description="Stream replication key (implies incremental sync)"),
-                Property("folder_name", StringType(), required=True, description="Custom report folder name"),
-                Property("report_name", StringType(), required=True, description="Custom report name"),
-            )
-        ))
+        Property(
+            "username",
+            StringType(),
+            required=True,
+            description="Username for Five9",
+            secret=True,
+        ),
+        Property(
+            "password",
+            StringType(),
+            required=True,
+            description="Password for Five9",
+            secret=True,
+        ),
+        Property(
+            "start_date",
+            DateTimeType(),
+            required=True,
+            description="Starting date to sync data from Five9",
+        ),
+        Property(
+            "region",
+            StringType(),
+            allowed_values=list(client.REGIONS),
+            default="US",
+            description="Five9 region",
+        ),
+        Property(
+            "custom_reports",
+            ArrayType(
+                ObjectType(
+                    Property(
+                        "name",
+                        StringType(),
+                        required=True,
+                        description="Stream name",
+                    ),
+                    Property(
+                        "schema",
+                        ObjectType(additional_properties=True),
+                        default={"properties": {}},
+                        description="Stream schema",
+                    ),
+                    Property(
+                        "primary_keys",
+                        ArrayType(StringType()),
+                        default=[],
+                        description="Stream primary keys",
+                    ),
+                    Property(
+                        "replication_key",
+                        StringType(),
+                        description="Stream replication key (implies incremental sync)",
+                    ),
+                    Property(
+                        "folder_name",
+                        StringType(),
+                        required=True,
+                        description="Custom report folder name",
+                    ),
+                    Property(
+                        "report_name",
+                        StringType(),
+                        required=True,
+                        description="Custom report name",
+                    ),
+                )
+            ),
+        ),
     ).to_dict()
 
     def discover_streams(self) -> t.Sequence[Five9ApiStream]:
