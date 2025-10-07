@@ -19,9 +19,6 @@ SCHEMAS_DIR = importlib_resources.files(__package__) / "schemas"
 class Five9ApiStream(Stream):
     name = None
     stream = None
-    replication_method = None
-    replication_key = None
-    key_properties = None
     folder_name = None
     report_name = None
     results_key = 'records'
