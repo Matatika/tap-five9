@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime
 import typing as t
+from functools import cached_property
 from importlib import resources as importlib_resources
 
 import dateutil.parser as parser
@@ -22,8 +23,6 @@ class Five9ApiStream(Stream):
     folder_name = None
     report_name = None
     results_key = 'records'
-    datetime_fields = []
-    int_fields = []
 
     def __init__(self, tap: Tap, schema=None,
                  name: str | None = None) -> None:
@@ -31,6 +30,14 @@ class Five9ApiStream(Stream):
 
         self.client = client.Five9API(self.config)
         self.timezone = client.REGIONS[self.config["region"]].timezone
+
+    @cached_property
+    def datetime_fields(self):
+        return {k for k, v in self.schema["properties"].items() if v.get("format") == "date-time"}
+
+    @cached_property
+    def int_fields(self):
+        return {k for k, v in self.schema["properties"].items() if "integer" in v["type"]}
 
     def transform_value(self, key, value):
         if key in self.datetime_fields and value:
@@ -109,9 +116,7 @@ class CallLog(Five9ApiStream):
     replication_key = 'timestamp'
     primary_keys = ('call_id',)
     folder_name = 'Call Log Reports'
-    report_name = 'Call Log'
-    datetime_fields = {'timestamp'}
-    int_fields = {'transfers', 'conferences', 'holds', 'abandoned'}
+    report_name = "Call Log"
     schema_filepath = SCHEMAS_DIR / "call_log.json"
 
 
@@ -122,8 +127,7 @@ class AgentLoginLogout(Five9ApiStream):
     replication_key = 'date'
     primary_keys = ('agent', 'date',)
     folder_name = 'Agent Reports'
-    report_name = 'Agent Login-Logout'
-    datetime_fields = {'date', 'login_timestamp', 'logout_timestamp'}
+    report_name = "Agent Login-Logout"
     schema_filepath = SCHEMAS_DIR / "agent_login_logout.json"
 
 
@@ -134,16 +138,14 @@ class AgentOccupancy(Five9ApiStream):
     replication_key = 'date'
     primary_keys = ('agent', 'date',)
     folder_name = 'Agent Reports'
-    report_name = 'Agent Occupancy'
-    datetime_fields = {'date'}
+    report_name = "Agent Occupancy"
     schema_filepath = SCHEMAS_DIR / "agent_occupancy.json"
 
 
 class AgentInformation(Five9ApiStream):
     name = 'agent_information'
     stream = 'agent_information'
-    replication_method = 'FULL_TABLE'
-    int_fields = {'agent_id', 'agent_start_year'}
+    replication_method = "FULL_TABLE"
     primary_keys = ('agent_id',)
     folder_name = 'Agent Reports'
     report_name = 'Agents Information'

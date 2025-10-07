@@ -35,8 +35,6 @@ class TapFive9(Tap):
                 Property("replication_key", StringType(), description="Stream replication key (implies incremental sync)"),
                 Property("folder_name", StringType(), required=True, description="Custom report folder name"),
                 Property("report_name", StringType(), required=True, description="Custom report name"),
-                Property("datetime_fields", ArrayType(StringType()), default=[], description="Date-time schema fields"),
-                Property("int_fields", ArrayType(StringType()), default=[], description="Integer schema fields"),
             )
         ))
     ).to_dict()
@@ -55,8 +53,6 @@ class TapFive9(Tap):
             report_stream.replication_key = report_config.get("replication_key")
             report_stream.folder_name = report_config["folder_name"]
             report_stream.report_name = report_config["report_name"]
-            report_stream.datetime_fields = report_config["datetime_fields"]
-            report_stream.datetime_fields = report_config["int_fields"]
 
             streams.append(report_stream)
 
