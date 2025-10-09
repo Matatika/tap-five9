@@ -72,6 +72,18 @@ class TapFive9(Tap):
             ArrayType(
                 ObjectType(
                     Property(
+                        "folder_name",
+                        StringType(),
+                        required=True,
+                        description="Custom report folder name",
+                    ),
+                    Property(
+                        "report_name",
+                        StringType(),
+                        required=True,
+                        description="Custom report name",
+                    ),
+                    Property(
                         "stream_name",
                         StringType(),
                         description="Stream name",
@@ -86,18 +98,6 @@ class TapFive9(Tap):
                         "replication_key",
                         StringType(),
                         description="Stream replication key (implies incremental sync)",
-                    ),
-                    Property(
-                        "folder_name",
-                        StringType(),
-                        required=True,
-                        description="Custom report folder name",
-                    ),
-                    Property(
-                        "report_name",
-                        StringType(),
-                        required=True,
-                        description="Custom report name",
                     ),
                 )
             ),
