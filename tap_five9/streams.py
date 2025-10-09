@@ -83,7 +83,7 @@ class Five9ApiStream(Stream):
         state = self.get_context_state(context)
         value = self.config['start_date']
         if state:
-            if state['starting_replication_value'] is not None:
+            if state.get('starting_replication_value') is not None:
                 value = state['starting_replication_value']
 
         if value is None:
