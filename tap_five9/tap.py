@@ -5,17 +5,22 @@ from datetime import datetime
 from singer_sdk import Tap
 from singer_sdk.typing import (
     ArrayType,
+    BooleanType,
     DateTimeType,
+    DateType,
     IntegerType,
     ObjectType,
     PropertiesList,
     Property,
     StringType,
+    TimeType,
 )
 
 from tap_five9 import client
 from tap_five9.streams import (
     DATETIME_FORMAT,
+    DATE_FORMAT,
+    TIME_FORMAT,
     AgentInformation,
     AgentLoginLogout,
     AgentOccupancy,
@@ -139,6 +144,9 @@ class TapFive9(Tap):
             # clear cached properties
             del report_stream.int_fields
             del report_stream.datetime_fields
+            del report_stream.date_fields
+            del report_stream.time_fields
+            del report_stream.boolean_fields
 
             streams.append(report_stream)
 
@@ -150,9 +158,23 @@ def _infer_schema_from_value(value: str, schema: dict):
     if schema == NULLABLE_STRING_TYPE:
         return schema
 
+    # boolean
+    if value in ["1", "0", "-"]:
+        return BooleanType(nullable=True).type_dict
+
     # integer
     if value.isdigit():
         return IntegerType(nullable=True).type_dict
+
+    # date
+    with contextlib.suppress(ValueError):
+        datetime.strptime(value, DATE_FORMAT)
+        return DateType(nullable=True).type_dict
+
+    # time
+    with contextlib.suppress(ValueError):
+        datetime.strptime(value, TIME_FORMAT)
+        return TimeType(nullable=True).type_dict
 
     # date-time
     with contextlib.suppress(ValueError):

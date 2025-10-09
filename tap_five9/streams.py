@@ -14,6 +14,8 @@ from tap_five9 import client
 
 LOGGER = singer.get_logger()
 SCHEMAS_DIR = importlib_resources.files(__package__) / "schemas"
+DATE_FORMAT = r"%a, %d %b %Y"
+TIME_FORMAT = r"%H:%M:%S"
 DATETIME_FORMAT = r"%a, %d %b %Y %H:%M:%S"
 
 
@@ -32,6 +34,10 @@ class Five9ApiStream(Stream):
         self.timezone = client.REGIONS[self.config["region"]].timezone
 
     @cached_property
+    def date_fields(self):
+        return {k for k, v in self.schema["properties"].items() if v.get("format") == "date"}
+
+    @cached_property
     def datetime_fields(self):
         return {k for k, v in self.schema["properties"].items() if v.get("format") == "date-time"}
 
@@ -39,7 +45,15 @@ class Five9ApiStream(Stream):
     def int_fields(self):
         return {k for k, v in self.schema["properties"].items() if "integer" in v["type"]}
 
+    @cached_property
+    def boolean_fields(self):
+        return {k for k, v in self.schema["properties"].items() if "boolean" in v["type"]}
+
+    # https://community.five9.com/s/document-item?language=en_US&bundleId=reports-dashboards&topicId=reports-dashboards/data-sources/_ch-data-sources.htm&_LANG=enus
     def transform_value(self, key, value):
+        if key in self.date_fields and value:
+            return datetime.datetime.strptime(DATE_FORMAT, value).isoformat()
+
         if key in self.datetime_fields and value:
             value = datetime.datetime.strptime(value, DATETIME_FORMAT)
             # convert timezone-naive to timezone-aware, based on region
@@ -47,10 +61,18 @@ class Five9ApiStream(Stream):
             # convert to utc
             value = value.astimezone(datetime.timezone.utc)
             # reformat to use RFC3339 format
-            value = singer_strftime(value)
+            return singer_strftime(value)
 
         if key in self.int_fields and value:
-            value = int(value)
+            return int(value)
+
+        if key in self.boolean_fields and value:
+            if value == "1":
+                return True
+            if value == "0":
+                return False
+            if value == "-":
+                return None
 
         return value
 
