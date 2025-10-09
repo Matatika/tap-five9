@@ -50,11 +50,8 @@ class Five9API:
 
     @staticmethod
     def inflect_field(field):
-
-        field = re.sub(r'[^a-zA-Z0-9]', '_', field)
-        field = re.sub(r"([A-Z]+)_([A-Z][a-z])", r'\1__\2', field)
-        field = re.sub(r"([a-z\d])_([A-Z])", r'\1__\2', field)
-        field = field.strip("_")
+        field = re.sub(r'[\s\.]', '_', field)
+        field = re.sub(r'[^\w-]', '', field)
         return inflection.underscore(field)
 
     def run_report(self, params):
