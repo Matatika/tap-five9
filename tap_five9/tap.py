@@ -143,10 +143,9 @@ class TapFive9(Tap):
 
             # clear cached properties
             del report_stream.int_fields
-            del report_stream.datetime_fields
-            del report_stream.date_fields
-            del report_stream.time_fields
             del report_stream.boolean_fields
+            del report_stream.date_fields
+            del report_stream.datetime_fields
 
             streams.append(report_stream)
 

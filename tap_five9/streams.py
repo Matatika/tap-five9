@@ -34,6 +34,14 @@ class Five9ApiStream(Stream):
         self.timezone = client.REGIONS[self.config["region"]].timezone
 
     @cached_property
+    def boolean_fields(self):
+        return {k for k, v in self.schema["properties"].items() if "boolean" in v["type"]}
+
+    @cached_property
+    def int_fields(self):
+        return {k for k, v in self.schema["properties"].items() if "integer" in v["type"]}
+
+    @cached_property
     def date_fields(self):
         return {k for k, v in self.schema["properties"].items() if v.get("format") == "date"}
 
@@ -41,18 +49,21 @@ class Five9ApiStream(Stream):
     def datetime_fields(self):
         return {k for k, v in self.schema["properties"].items() if v.get("format") == "date-time"}
 
-    @cached_property
-    def int_fields(self):
-        return {k for k, v in self.schema["properties"].items() if "integer" in v["type"]}
-
-    @cached_property
-    def boolean_fields(self):
-        return {k for k, v in self.schema["properties"].items() if "boolean" in v["type"]}
-
     # https://community.five9.com/s/document-item?language=en_US&bundleId=reports-dashboards&topicId=reports-dashboards/data-sources/_ch-data-sources.htm&_LANG=enus
     def transform_value(self, key, value):
         if value == "":
             return None
+
+        if key in self.boolean_fields and value:
+            if value == "1":
+                return True
+            if value == "0":
+                return False
+            if value == "-":
+                return None
+
+        if key in self.int_fields and value:
+            return int(value)
 
         if key in self.date_fields and value:
             return datetime.datetime.strptime(DATE_FORMAT, value).isoformat()
@@ -65,17 +76,6 @@ class Five9ApiStream(Stream):
             value = value.astimezone(datetime.timezone.utc)
             # reformat to use RFC3339 format
             return singer_strftime(value)
-
-        if key in self.int_fields and value:
-            return int(value)
-
-        if key in self.boolean_fields and value:
-            if value == "1":
-                return True
-            if value == "0":
-                return False
-            if value == "-":
-                return None
 
         return value
 
