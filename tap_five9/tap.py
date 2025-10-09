@@ -18,8 +18,8 @@ from singer_sdk.typing import (
 
 from tap_five9 import client
 from tap_five9.streams import (
-    DATETIME_FORMAT,
     DATE_FORMAT,
+    DATETIME_FORMAT,
     TIME_FORMAT,
     AgentInformation,
     AgentLoginLogout,
@@ -74,7 +74,6 @@ class TapFive9(Tap):
                     Property(
                         "name",
                         StringType(),
-                        required=True,
                         description="Stream name",
                     ),
                     Property(
@@ -111,7 +110,10 @@ class TapFive9(Tap):
         for report_config in self.config["custom_reports"]:
             report_stream = Five9ApiStream(
                 tap=self,
-                name=report_config["name"],
+                name=(
+                    report_config.get("name")
+                    or report_config["report_name"].lower().replace(" ", "_")
+                ),
                 schema={"properties": {}},
             )
 
