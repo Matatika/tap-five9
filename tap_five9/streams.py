@@ -51,6 +51,9 @@ class Five9ApiStream(Stream):
 
     # https://community.five9.com/s/document-item?language=en_US&bundleId=reports-dashboards&topicId=reports-dashboards/data-sources/_ch-data-sources.htm&_LANG=enus
     def transform_value(self, key, value):
+        if value == "":
+            return None
+
         if key in self.date_fields and value:
             return datetime.datetime.strptime(DATE_FORMAT, value).isoformat()
 
