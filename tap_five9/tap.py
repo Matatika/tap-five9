@@ -72,7 +72,7 @@ class TapFive9(Tap):
             ArrayType(
                 ObjectType(
                     Property(
-                        "name",
+                        "stream_name",
                         StringType(),
                         description="Stream name",
                     ),
@@ -111,7 +111,7 @@ class TapFive9(Tap):
             report_stream = Five9ApiStream(
                 tap=self,
                 name=(
-                    report_config.get("name")
+                    report_config.get("stream_name")
                     or report_config["report_name"].lower().replace(" ", "_")
                 ),
                 schema={"properties": {}},
