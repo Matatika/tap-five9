@@ -5,7 +5,6 @@ import typing as t
 from functools import cached_property
 from importlib import resources as importlib_resources
 
-import dateutil.parser as parser
 import pendulum
 import singer
 from singer.utils import strftime as singer_strftime
@@ -15,6 +14,7 @@ from tap_five9 import client
 
 LOGGER = singer.get_logger()
 SCHEMAS_DIR = importlib_resources.files(__package__) / "schemas"
+DATETIME_FORMAT = r"%a, %d %b %Y %H:%M:%S"
 
 
 class Five9ApiStream(Stream):
@@ -41,7 +41,7 @@ class Five9ApiStream(Stream):
 
     def transform_value(self, key, value):
         if key in self.datetime_fields and value:
-            value = parser.parse(value)
+            value = datetime.datetime.strptime(value, DATETIME_FORMAT)
             # convert timezone-naive to timezone-aware, based on region
             value = value.astimezone(self.timezone)
             # convert to utc
