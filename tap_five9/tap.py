@@ -101,6 +101,8 @@ class TapFive9(Tap):
                     ),
                 )
             ),
+            default=[],
+            description="Custom report stream definitions"
         ),
     ).to_dict()
 
